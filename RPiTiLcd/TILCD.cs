@@ -81,6 +81,7 @@ namespace RPiTiLcd
 
         public void setDisplayOn(bool on)
         {
+            // TODO: Create flags for all of these binary literals
             writeBinaryValue(0, (byte) ("00000010".BinaryLiteralToByte() | (on ? 1 : 0)));
         }
 
