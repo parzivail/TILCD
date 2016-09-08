@@ -81,8 +81,7 @@ namespace RPiTiLcd
 
         public void setDisplayOn(bool on)
         {
-            // TODO: Create flags for all of these binary literals
-            writeBinaryValue(0, (byte) ("00000010".BinaryLiteralToByte() | (on ? 1 : 0)));
+            writeBinaryValue(0, (byte) (T6A04ACommands.DisplayStateSet | (on ? 1 : 0)));
         }
 
         public void setCounterMode(bool y, bool up)

@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace RPiTiLcd
 {
-    [Flags]
-    public enum T6A04ACommands
+    public sealed class T6A04ACommands
     {
-        WordLengthSet = 0,
+        byte WordLengthSet = 0,
         DisplayStateSet = 2,
         CounterModeSet = 4,
         OpAmpControl2Set = 8,
@@ -17,7 +16,7 @@ namespace RPiTiLcd
         YAddressSet = 32,
         ZAddressSet = 64,
         XAddressSet = 128,
-        ContrastSet = 192
+        ContrastSet = 192;
     }
 
     [Flags]
