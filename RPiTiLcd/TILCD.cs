@@ -22,6 +22,8 @@ namespace RPiTiLcd
         private readonly GpioPin _d7;
         private byte _contrast;
 
+        private byte[,] _graphicsBuffer = new byte[96, 64];
+
         public TiLcd(byte ce, byte di, byte wr, byte rst, byte d0, byte d1, byte d2, byte d3, byte d4, byte d5, byte d6,
             byte d7)
         {
