@@ -6,7 +6,7 @@ using Windows.Devices.Gpio;
 
 namespace RPiTiLcd
 {
-    internal class TILCD
+    internal class TiLcd
     {
         private readonly GpioPin _ce;
         private readonly GpioPin _di;
@@ -22,7 +22,7 @@ namespace RPiTiLcd
         private readonly GpioPin _d7;
         private byte _contrast;
 
-        public TILCD(byte ce, byte di, byte wr, byte rst, byte d0, byte d1, byte d2, byte d3, byte d4, byte d5, byte d6,
+        public TiLcd(byte ce, byte di, byte wr, byte rst, byte d0, byte d1, byte d2, byte d3, byte d4, byte d5, byte d6,
             byte d7)
         {
             var gpio = GpioController.GetDefault();
@@ -58,93 +58,95 @@ namespace RPiTiLcd
 
             _contrast = 48;
 
-            _wr.Write(GpioPinValue.Low);
+            _wr.Write(false);
         }
 
-        public void init(byte contrast)
+        public void Init(byte contrast)
         {
             _contrast = contrast;
-            setWordLength(true);
-            setCounterMode(false, true);
-            setDisplayOn(true);
-            setContrast(contrast);
-            setPos(0, 0);
+            SetWordLength(true);
+            SetCounterMode(CounterMode.XUp);
+            SetDisplayState(DisplayState.On);
+            SetContrast(contrast);
+            SetPos(0, 0);
         }
 
-        public void reset()
+        public void Reset()
         {
-            _rst.Write(GpioPinValue.Low);
+            _rst.Write(false);
             Task.Delay(100).Wait();
-            _rst.Write(GpioPinValue.High);
-            init(_contrast);
+            _rst.Write(true);
+            Init(_contrast);
         }
 
-        public void setDisplayOn(bool on)
+        public void SetDisplayState(byte state)
         {
-            writeBinaryValue(0, (byte) (T6A04ACommands.DisplayStateSet | (on ? 1 : 0)));
+            WriteBinaryValue(0, (byte) (TiCommand.DisplayStateSet | state));
         }
 
-        public void setCounterMode(bool y, bool up)
+        public void SetCounterMode(byte mode)
         {
-            writeBinaryValue(0, (byte)("00000100".BinaryLiteralToByte() | (y ? B10 : 0) | (up ? 1 : 0));
+            WriteBinaryValue(0, (byte)(TiCommand.CounterModeSet | mode));
         }
 
-        public void setContrast(byte contrast)
+        public void SetContrast(byte contrast)
         {
-            writeBinaryValue(0, B11000000 | (contrast & B00111111));
+            WriteBinaryValue(0, (byte) (TiCommand.ContrastSet | (contrast & CommandMask.ContrastMask)));
         }
 
-        public void setPos(byte x, byte y)
+        public void SetPos(byte x, byte y)
         {
-            setX(x);
-            setY(y);
+            SetX(x);
+            SetY(y);
         }
 
-        public void setX(byte x)
+        public void SetX(byte x)
         {
-            writeBinaryValue(0, B00100000 | (x & B00011111));
+            // Display X is really the Y/Page buffer
+            WriteBinaryValue(0, (byte) (TiCommand.YAddressSet | (x & CommandMask.YMask)));
         }
 
-        public void setZ(byte z)
+        public void SetZ(byte z)
         {
-            writeBinaryValue(0, B01000000 | (z & B00111111));
+            WriteBinaryValue(0, (byte) (TiCommand.ZAddressSet | (z & CommandMask.ZMask)));
         }
 
-        public void setY(byte y)
+        public void SetY(byte y)
         {
-            writeBinaryValue(0, B10000000 | (y & B00111111));
+            // Display Y is really the X buffer
+            WriteBinaryValue(0, (byte) (TiCommand.XAddressSet | (y & CommandMask.XMask)));
         }
 
-        public void setScreenBytes(byte bytes [])
+        public void SetScreenBytes(byte[] bytes)
         {
-            for (int x = 0; x < 12; x++)
+            for (byte x = 0; x < 12; x++)
             {
-                setX(x);
-                for (int y = 0; y < 64; y++)
+                SetX(x);
+                for (byte y = 0; y < 64; y++)
                 {
-                    writeBinaryValue(1, bytes[x*64 + y]);
+                    WriteBinaryValue(1, bytes[x*64 + y]);
                 }
             }
         }
 
-        public void writeBinaryValue(byte di, byte value)
+        public void WriteBinaryValue(byte di, byte value)
         {
-            digitalWrite(_ce, false);
-            digitalWrite(_di, di);
-            digitalWrite(_d0, HIGH && (value & B00000001));
-            digitalWrite(_d1, HIGH && (value & B00000010));
-            digitalWrite(_d2, HIGH && (value & B00000100));
-            digitalWrite(_d3, HIGH && (value & B00001000));
-            digitalWrite(_d4, HIGH && (value & B00010000));
-            digitalWrite(_d5, HIGH && (value & B00100000));
-            digitalWrite(_d6, HIGH && (value & B01000000));
-            digitalWrite(_d7, HIGH && (value & B10000000));
-            digitalWrite(_ce, true);
+            _ce.Write(false);
+            _di.Write(di);
+            _d0.Write(value & 1);
+            _d1.Write(value & 2);
+            _d2.Write(value & 4);
+            _d3.Write(value & 8);
+            _d4.Write(value & 16);
+            _d5.Write(value & 32);
+            _d6.Write(value & 64);
+            _d7.Write(value & 128);
+            _ce.Write(true);
         }
 
-        public void setWordLength(bool eightBits)
+        private void SetWordLength(bool eightBits)
         {
-            writeBinaryValue(0, eightBits ? 1 : 0);
+            WriteBinaryValue(0, (byte)(TiCommand.WordLengthSet | (eightBits ? WordLength.EightBits : WordLength.SixBits)));
         }
     }
 }

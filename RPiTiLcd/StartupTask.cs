@@ -11,7 +11,7 @@ namespace RPiTiLcd
     {
         public void Run(IBackgroundTaskInstance taskInstance)
         {
-            //var lcd = new TILCD();
+            var lcd = new TiLcd(40, 41, 42, 50, 30, 31, 32, 33, 34, 35, 36, 37);
         }
     }
 }

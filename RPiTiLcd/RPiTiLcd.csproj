@@ -96,11 +96,15 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BinaryLiteral.cs" />
+    <Compile Include="CommandMask.cs" />
+    <Compile Include="CounterMode.cs" />
+    <Compile Include="DisplayState.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="StartupTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="T6A04ACommands.cs" />
+    <Compile Include="TiCommand.cs" />
     <Compile Include="TILCD.cs" />
+    <Compile Include="WordLength.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
