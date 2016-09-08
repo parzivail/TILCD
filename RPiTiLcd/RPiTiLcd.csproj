@@ -99,6 +99,7 @@
     <Compile Include="BinaryLiteral.cs" />
     <Compile Include="StartupTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="T6A04ACommands.cs" />
     <Compile Include="TILCD.cs" />
   </ItemGroup>
   <ItemGroup>
