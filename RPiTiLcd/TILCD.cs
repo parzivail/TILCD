@@ -119,14 +119,32 @@ namespace RPiTiLcd
             WriteBinaryValue(0, (byte) (TiCommand.XAddressSet | (y & CommandMask.XMask)));
         }
 
-        private void SetScreenBytes(bool[,] pixels)
+        public void SetScreenBytes(bool[,] pixels)
         {
             for (byte x = 0; x < 12; x++)
             {
                 SetX(x);
                 for (byte y = 0; y < 64; y++)
                 {
-                    WriteBinaryValue(1, (byte) (pixels[x, y] ? 1 : 0));
+                    //WriteBinaryValue(1, (byte) (pixels[x, y] ? 1 : 0));
+                }
+            }
+        }
+
+        public void SetScreenBytes(byte[,] pixels)
+        {
+            for (byte x = 0; x < 96; x+=8)
+            {
+                SetX(x);
+                for (byte y = 0; y < 64; y++)
+                {
+                    byte n = 0;
+                    foreach (var pixel in pixels.GetPixelRow(y).Range(x, x + 8))
+                    {
+                        n <<= 1;
+                        n += pixel;
+                    }
+                    WriteBinaryValue(1, n);
                 }
             }
         }
