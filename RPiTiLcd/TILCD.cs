@@ -160,7 +160,7 @@ namespace RPiTiLcd
         {
             for (byte x = 0; x < 96; x += 8)
             {
-                SetX((byte) (x / 8));
+                SetX((byte) (x/8));
                 for (byte y = 0; y < 64; y++)
                 {
                     byte n = 0;
@@ -176,9 +176,6 @@ namespace RPiTiLcd
             }
         }
 
-        private static void Swap<T>(ref T lhs, ref T rhs) {
-            var temp = lhs; lhs = rhs; rhs = temp; }
-
         /// <summary>
         /// Plot the line from (x0, y0) to (x1, y10
         /// </summary>
@@ -190,9 +187,9 @@ namespace RPiTiLcd
         public void DrawLine(int x0, int y0, int x1, int y1)
         {
             var steep = Math.Abs(y1 - y0) > Math.Abs(x1 - x0);
-            if (steep) { Swap(ref x0, ref y0); Swap(ref x1, ref y1); }
-            if (x0 > x1) { Swap(ref x0, ref x1); Swap(ref y0, ref y1); }
-            int dX = (x1 - x0), dY = Math.Abs(y1 - y0), err = (dX / 2), ystep = (y0 < y1 ? 1 : -1), y = y0;
+            if (steep) { Utils.Swap(ref x0, ref y0); Utils.Swap(ref x1, ref y1); }
+            if (x0 > x1) { Utils.Swap(ref x0, ref x1); Utils.Swap(ref y0, ref y1); }
+            int dX = x1 - x0, dY = Math.Abs(y1 - y0), err = dX / 2, ystep = y0 < y1 ? 1 : -1, y = y0;
 
             for (var x = x0; x <= x1; ++x)
             {

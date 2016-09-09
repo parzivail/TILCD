@@ -3,7 +3,7 @@ using Windows.Devices.Gpio;
 
 namespace RPiTiLcd
 {
-    internal static class Extensions
+    internal static class Utils
     {
         public static void Write(this GpioPin pin, bool value)
         {
@@ -32,6 +32,11 @@ namespace RPiTiLcd
             Buffer.BlockCopy(array, d2 * row, target, 0, d2);
 
             return target;
+        }
+
+        public static void Swap<T>(ref T lhs, ref T rhs)
+        {
+            var temp = lhs; lhs = rhs; rhs = temp;
         }
     }
 }
