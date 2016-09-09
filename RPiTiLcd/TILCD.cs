@@ -21,7 +21,7 @@ namespace RPiTiLcd
         private readonly GpioPin _d7;
         private byte _contrast;
 
-        private readonly bool[,] _graphicsBuffer = new bool[64, 96];
+        public readonly bool[,] GraphicsBuffer = new bool[64, 96];
 
         public TiLcd(byte ce, byte di, byte wr, byte rst, byte d0, byte d1, byte d2, byte d3, byte d4, byte d5, byte d6,
             byte d7)
@@ -68,7 +68,7 @@ namespace RPiTiLcd
         {
             for (byte x = 0; x < 96; x++)
                 for (byte y = 0; y < 64; y++)
-                    _graphicsBuffer[y, x] = false;
+                    GraphicsBuffer[y, x] = false;
         }
 
         public void Init(byte contrast)
@@ -129,7 +129,7 @@ namespace RPiTiLcd
 
         public void RefreshFromBuffer()
         {
-            SetScreenBytes(_graphicsBuffer);
+            SetScreenBytes(GraphicsBuffer);
         }
 
         public void SetScreenBytes(bool[,] pixels)
@@ -149,7 +149,7 @@ namespace RPiTiLcd
             if (x < 0 || x >= 96 || y < 0 || y >= 64)
                 return false;
 
-            _graphicsBuffer[y, x] = value;
+            GraphicsBuffer[y, x] = value;
             if (refreshFromBuffer)
                 RefreshFromBuffer();
 
@@ -173,30 +173,6 @@ namespace RPiTiLcd
                     }
                     WriteBinaryValue(1, n);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Plot the line from (x0, y0) to (x1, y10
-        /// </summary>
-        /// <author>Jason Morley</author>
-        /// <param name="x0">The start x</param>
-        /// <param name="y0">The start y</param>
-        /// <param name="x1">The end x</param>
-        /// <param name="y1">The end y</param>
-        public void DrawLine(int x0, int y0, int x1, int y1)
-        {
-            var steep = Math.Abs(y1 - y0) > Math.Abs(x1 - x0);
-            if (steep) { Utils.Swap(ref x0, ref y0); Utils.Swap(ref x1, ref y1); }
-            if (x0 > x1) { Utils.Swap(ref x0, ref x1); Utils.Swap(ref y0, ref y1); }
-            int dX = x1 - x0, dY = Math.Abs(y1 - y0), err = dX / 2, ystep = y0 < y1 ? 1 : -1, y = y0;
-
-            for (var x = x0; x <= x1; ++x)
-            {
-                if (!(steep ? SetPixel(y, x, true, false) : SetPixel(x, y, true, false))) return;
-                err = err - dY;
-                if (err >= 0) continue;
-                y += ystep; err += dX;
             }
         }
 
