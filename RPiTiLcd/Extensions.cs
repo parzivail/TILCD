@@ -26,11 +26,10 @@ namespace RPiTiLcd
         public static byte[] GetPixelRow(this byte[,] array, int row)
         {
             const int d2 = 64;
-            const int doubleSize = 8;
             
             var target = new byte[d2];
             
-            Buffer.BlockCopy(array, doubleSize * d2 * row, target, 0, doubleSize * d2);
+            Buffer.BlockCopy(array, d2 * row, target, 0, d2);
 
             return target;
         }

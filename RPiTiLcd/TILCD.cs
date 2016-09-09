@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
@@ -133,13 +134,15 @@ namespace RPiTiLcd
 
         public void SetScreenBytes(byte[,] pixels)
         {
-            for (byte x = 0; x < 96; x+=8)
+            for (byte x = 0; x < 96; x += 8)
             {
-                SetX(x);
+                SetX((byte) (x / 8));
                 for (byte y = 0; y < 64; y++)
                 {
                     byte n = 0;
-                    foreach (var pixel in pixels.GetPixelRow(y).Range(x, x + 8))
+                    var npxl = new List<byte>();
+                    for (var nx = 0; nx < 8; nx++) npxl.Add(pixels[y, x + nx]);
+                    foreach (var pixel in npxl)
                     {
                         n <<= 1;
                         n += pixel;
