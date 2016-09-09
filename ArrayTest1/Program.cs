@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Net.Http;
-using Windows.ApplicationModel.Background;
+using System.Threading.Tasks;
 
-namespace RPiTiLcd
+namespace ArrayTest1
 {
-    public sealed class StartupTask : IBackgroundTask
+    class Program
     {
         static readonly byte[,] Image =
         {
@@ -333,13 +332,9 @@ namespace RPiTiLcd
             }
         };
 
-        public void Run(IBackgroundTaskInstance taskInstance)
+        static void Main(string[] args)
         {
-            var lcd = new TiLcd(18, 23, 4, 25, 17, 27, 22, 5, 6, 13, 19, 26);
-
-            lcd.Init(48);
-
-            lcd.SetScreenBytes(Image);
+            Console.WriteLine(Image[-1, -1]);
         }
     }
 }

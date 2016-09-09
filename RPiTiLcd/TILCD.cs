@@ -23,7 +23,7 @@ namespace RPiTiLcd
         private readonly GpioPin _d7;
         private byte _contrast;
 
-        private bool[,] _graphicsBuffer = new bool[96, 64];
+        private readonly bool[,] _graphicsBuffer = new bool[64, 96];
 
         public TiLcd(byte ce, byte di, byte wr, byte rst, byte d0, byte d1, byte d2, byte d3, byte d4, byte d5, byte d6,
             byte d7)
@@ -62,6 +62,15 @@ namespace RPiTiLcd
             _contrast = 48;
 
             _wr.Write(false);
+
+            InitBuffer();
+        }
+
+        private void InitBuffer()
+        {
+            for (byte x = 0; x < 96; x++)
+                for (byte y = 0; y < 64; y++)
+                    _graphicsBuffer[y, x] = false;
         }
 
         public void Init(byte contrast)
@@ -118,6 +127,11 @@ namespace RPiTiLcd
         {
             // Display Y is really the X buffer
             WriteBinaryValue(0, (byte) (TiCommand.XAddressSet | (y & CommandMask.XMask)));
+        }
+
+        public void RefreshFromBuffer()
+        {
+            SetScreenBytes(_graphicsBuffer);
         }
 
         public void SetScreenBytes(bool[,] pixels)
