@@ -1,0 +1,6 @@
+﻿namespace TiLcd
+{
+    class TiDefaultFont
+    {
+    }
+}

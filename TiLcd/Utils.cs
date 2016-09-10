@@ -1,7 +1,7 @@
 ﻿using System;
 using Windows.Devices.Gpio;
 
-namespace RPiTiLcd
+namespace TiLcd
 {
     internal static class Utils
     {

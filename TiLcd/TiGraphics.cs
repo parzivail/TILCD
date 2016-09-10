@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace RPiTiLcd
+namespace TiLcd
 {
     class TiGraphics
     {
         private readonly TiLcd _lcd;
-        private BeginMode _currentMode;
-        private List<Point> _currentPoints;
+        private TiLcd.BeginMode _currentMode;
+        private List<TiLcd.Point> _currentPoints;
 
-        public TiGraphics(TiLcd lcd)
+        public TiGraphics(ref TiLcd lcd)
         {
             _lcd = lcd;
-            _currentPoints = new List<Point>();
+            _currentPoints = new List<TiLcd.Point>();
         }
 
         /// <summary>
@@ -42,7 +39,7 @@ namespace RPiTiLcd
             }
         }
 
-        public void BeginDraw(BeginMode mode)
+        public void BeginDraw(TiLcd.BeginMode mode)
         {
             _currentMode = mode;
         }
@@ -50,38 +47,18 @@ namespace RPiTiLcd
         public void EndDraw()
         {
             RenderDrawnPoints(_currentMode, _currentPoints);
-            _currentMode = BeginMode.None;
+            _currentMode = TiLcd.BeginMode.None;
         }
 
-        private void RenderDrawnPoints(BeginMode currentMode, List<Point> currentPoints)
+        private void RenderDrawnPoints(TiLcd.BeginMode currentMode, List<TiLcd.Point> currentPoints)
         {
             throw new NotImplementedException();
         }
 
         public void AddPoint(int x, int y)
         {
-            if (_currentMode != BeginMode.None)
-                _currentPoints.Add(new Point(x, y));
-        }
-
-        public class Point
-        {
-            public int X { get; set; }
-            public int Y { get; set; }
-
-            public Point(int x, int y)
-            {
-                X = x;
-                Y = y;
-            }
-        }
-
-        public enum BeginMode
-        {
-            None,
-            Line,
-            LineLoop,
-            Fill
+            if (_currentMode != TiLcd.BeginMode.None)
+                _currentPoints.Add(new TiLcd.Point(x, y));
         }
     }
 }

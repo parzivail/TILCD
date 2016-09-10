@@ -1,4 +1,4 @@
-﻿namespace RPiTiLcd
+﻿namespace TiLcd
 {
     internal class CommandMask
     {
