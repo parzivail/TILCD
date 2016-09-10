@@ -22,9 +22,9 @@ namespace TiLcdTest
             {
                 lcd.Clear();
                 
-                lcd.DrawPartialCircle(20, 32, 12, f, true);
+                lcd.DrawPartialDonut(20, 32, 12, 3, f, true);
 
-                lcd.DrawPartialCircle(60, 32, 12, 1 - f, true);
+                lcd.DrawPartialDonut(60, 32, 12, 3, 1 - f, false);
 
                 lcd.RefreshFromBuffer();
 

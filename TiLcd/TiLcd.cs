@@ -466,6 +466,14 @@ namespace TiLcdTest
             MergeTempBuffer();
         }
 
+        /// <summary>
+        /// Draws a rectangle to the graphics buffer.
+        /// </summary>
+        /// <param name="x">The x of the rectangle</param>
+        /// <param name="y">The y of the rectangle</param>
+        /// <param name="w">The width of the rectangle</param>
+        /// <param name="h">The height of the rectangle</param>
+        /// <param name="filled"></param>
         public void DrawRectangle(int x, int y, int w, int h, bool filled)
         {
             if (_currentMode != BeginMode.None)
@@ -481,11 +489,26 @@ namespace TiLcdTest
             EndDraw();
         }
 
+        /// <summary>
+        /// Draws a circle to the graphics buffer.
+        /// </summary>
+        /// <param name="x">The x of the circle</param>
+        /// <param name="y">The y of the circle</param>
+        /// <param name="r">The radius of the circle</param>
+        /// <param name="filled">True if the circle should be filled</param>
         public void DrawCircle(int x, int y, int r, bool filled)
         {
             DrawPartialCircle(x, y, r, 1, filled);
         }
 
+        /// <summary>
+        /// Draws a partial circle to the graphics buffer.
+        /// </summary>
+        /// <param name="x">The x of the circle</param>
+        /// <param name="y">The y of the circle</param>
+        /// <param name="r">The radius of the circle</param>
+        /// <param name="percent">The percent "full" of the circle</param>
+        /// <param name="filled">True if the circle should be filled</param>
         public void DrawPartialCircle(int x, int y, int r, float percent, bool filled)
         {
             if (_currentMode != BeginMode.None)
@@ -505,33 +528,53 @@ namespace TiLcdTest
             EndDraw();
         }
 
-        /*public void DrawDonut(int x, int y, int r, float stripSize)
+        /// <summary>
+        /// Draws a donut to the graphics buffer.
+        /// </summary>
+        /// <param name="x">The x of the donut</param>
+        /// <param name="y">The y of the donut</param>
+        /// <param name="r">The radius of the donut</param>
+        /// <param name="stripSize">The size of the filled strip</param>
+        /// <param name="filled">True if the circle should be filled</param>
+        public void DrawDonut(int x, int y, int r, int stripSize, bool filled)
         {
-            DrawPartialDonut(x, y, r, stripSize, 1);
+            DrawPartialDonut(x, y, r, stripSize, 1, filled);
         }
 
-        public void DrawPartialDonut(int x, int y, int r, float stripSize, float percent)
+        /// <summary>
+        /// Draws a partial donut to the graphics buffer.
+        /// </summary>
+        /// <param name="x">The x of the donut</param>
+        /// <param name="y">The y of the donut</param>
+        /// <param name="r">The radius of the donut</param>
+        /// <param name="stripSize">The size of the filled strip</param>
+        /// <param name="percent">The percent "full" of the circle</param>
+        /// <param name="filled">True if the circle should be filled</param>
+        public void DrawPartialDonut(int x, int y, int r, int stripSize, float percent, bool filled)
         {
             if (_currentMode != BeginMode.None)
                 return;
 
-            BeginDraw(BeginMode.Fill);
+            BeginDraw(filled ? BeginMode.Fill : BeginMode.LineLoop);
 
-            AddPoint(x, y);
+            AddPoint(x, y - (r - stripSize));
 
-            for (var i = 0; i <= 360 * percent; i++)
+            for (var i = 0; i <= 360*percent; i++)
             {
-                var nx = (int)Math.Round(Math.Sin(i * 3.141526f / 180) * (r - stripSize));
-                var ny = (int)Math.Round(Math.Cos(i * 3.141526f / 180) * (r - stripSize));
-                AddPoint(nx + x, ny + y);
+                var nx = (int) Math.Round(Math.Sin(i*3.141526f/180)*r);
+                var ny = (int) Math.Round(Math.Cos(i*3.141526f/180)*r);
+                AddPoint(nx + x, y - ny);
+            }
 
-                nx = (int)Math.Round(Math.Sin(i * 3.141526f / 180) * r);
-                ny = (int)Math.Round(Math.Cos(i * 3.141526f / 180) * r);
-                AddPoint(nx + x, ny + y);
+            for (var i = 360*percent; i >= 0; i--)
+            {
+                var nx = (int) Math.Round(Math.Sin(i*3.141526f/180)*(r - stripSize));
+                var ny = (int) Math.Round(Math.Cos(i*3.141526f/180)*(r - stripSize));
+                AddPoint(nx + x, y - ny);
             }
 
             EndDraw();
-        }*/
+        }
 
         /// <summary>
         /// Public bridge for <see cref="ClearScreenBuffer"/>.
