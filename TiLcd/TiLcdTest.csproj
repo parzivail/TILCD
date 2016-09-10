@@ -103,10 +103,8 @@
     <Compile Include="Point.cs" />
     <Compile Include="StartupTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TiCharacter.cs" />
     <Compile Include="TiCommand.cs" />
     <Compile Include="TiDefaultFont.cs" />
-    <Compile Include="TiGraphics.cs" />
     <Compile Include="TiLcd.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="WordLength.cs" />

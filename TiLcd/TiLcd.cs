@@ -74,6 +74,9 @@ namespace TiLcdTest
             ClearTempBuffer();
         }
 
+        /// <summary>
+        /// Clears the graphics buffer.
+        /// </summary>
         private void ClearScreenBuffer()
         {
             for (byte x = 0; x < 96; x++)
@@ -81,7 +84,12 @@ namespace TiLcdTest
                     GraphicsBuffer[y, x] = false;
         }
 
-        public void Init(byte contrast)
+
+        /// <summary>
+        /// Initializes the display. Sets the word length to 8, counter mode to <see cref="CounterMode.XUp"/>, display state to <see cref="DisplayState.On"/>, and contrast to [contrast = 48].
+        /// </summary>
+        /// <param name="contrast">The contrast of the display. Optional.</param>
+        public void Init(byte contrast = 48)
         {
             _contrast = contrast;
             SetWordLength(true);
@@ -91,59 +99,107 @@ namespace TiLcdTest
             SetPos(0, 0);
         }
 
+        /// <summary>
+        /// Resets the display.
+        /// </summary>
         public void Reset()
         {
             _rst.Write(false);
-            Task.Delay(100).Wait();
+            100.Delay();
             _rst.Write(true);
             Init(_contrast);
         }
 
+        /// <summary>
+        /// Sets the <see cref="DisplayState"/> of the display.
+        /// </summary>
+        /// <param name="state">The state, 0 or 1.</param>
         public void SetDisplayState(byte state)
         {
             WriteBinaryValue(0, (byte) (TiCommand.DisplayStateSet | state));
         }
 
+        /// <summary>
+        /// This command selects the counter and the up/down mode. For instance, when X-counter/up mode is selected,
+        /// the X-address is incremented in response to every data read and write.However, when X-counter/up mode is
+        /// selected, the address in the Y-(page) counter will not change.Hence the Y-address must be set (with the SYE
+        /// command) before it can be changed.
+        /// </summary>
+        /// <param name="mode">The mode (of type <see cref="CounterMode"/>)</param>
         public void SetCounterMode(byte mode)
         {
             WriteBinaryValue(0, (byte) (TiCommand.CounterModeSet | mode));
         }
 
+        /// <summary>
+        /// This command sets the contrast for the LCD. The LCD contrast can be set in 64 steps. The command C0H
+        /// selects the brightest level; the command FFH selects the darkest.
+        /// </summary>
+        /// <param name="contrast"></param>
         public void SetContrast(byte contrast)
         {
             WriteBinaryValue(0, (byte) (TiCommand.ContrastSet | (contrast & CommandMask.ContrastMask)));
         }
 
+        /// <summary>
+        /// Sets the physical position of the register pointer for 8 bit writing.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
         public void SetPos(byte x, byte y)
         {
             SetX(x);
             SetY(y);
         }
 
+        /// <summary>
+        /// Sets the physical X value of the LCD driver's buffer. Note this is technically the Y/Page buffer.
+        /// </summary>
+        /// <param name="x"></param>
         public void SetX(byte x)
         {
             // Display X is really the Y/Page buffer
             WriteBinaryValue(0, (byte) (TiCommand.YAddressSet | (x & CommandMask.YMask)));
         }
 
+        /// <summary>
+        /// This command sets the top row of the LCD screen, irrespective of the current X-address. For instance, when
+        /// the Z-address is 32, the top row of the LCD screen is address 32 of the display RAM, and the bottom row of the
+        /// LCD screen is address 31 of the display RAM.
+        /// </summary>
+        /// <param name="z">The y address</param>
         public void SetZ(byte z)
         {
             WriteBinaryValue(0, (byte) (TiCommand.ZAddressSet | (z & CommandMask.ZMask)));
         }
 
+        /// <summary>
+        /// Sets the physical Y value of the LCD driver's buffer. Note this is technically the X buffer.
+        /// </summary>
+        /// <param name="y">The y position between 0 and 63</param>
         public void SetY(byte y)
         {
             // Display Y is really the X buffer
             WriteBinaryValue(0, (byte) (TiCommand.XAddressSet | (y & CommandMask.XMask)));
         }
 
+        /// <summary>
+        /// refreshes the screen from the internal graphics buffer, overwriting any previous screen content.
+        /// </summary>
         public void RefreshFromBuffer()
         {
             SetScreenBools(GraphicsBuffer);
         }
 
+        /// <summary>
+        /// Sets the value of each pixel to the values in the given 64x96 array.
+        /// </summary>
+        /// <param name="pixels">The pixels to set. Must be 64x96.</param>
         public void SetScreenBools(bool[,] pixels)
         {
+            if (pixels.Length != 64*96)
+                return;
+
             for (byte x = 0; x < 96; x += 8)
             {
                 SetX((byte) (x/8));
@@ -162,19 +218,31 @@ namespace TiLcdTest
             }
         }
 
-        public bool SetPixel(int x, int y, bool value, bool refreshFromBuffer)
+        /// <summary>
+        /// Sets a pixel in the given buffer to the given value
+        /// </summary>
+        /// <param name="x">The x position of the pixel</param>
+        /// <param name="y">The y position of the pixel</param>
+        /// <param name="value">The pixel's value</param>
+        /// <returns>True if the value was sucessfully written</returns>
+        public bool SetPixel(int x, int y, bool value)
         {
             if ((x < 0) || (x >= 96) || (y < 0) || (y >= 64))
                 return false;
 
             GraphicsBuffer[y, x] = value;
 
-            if (refreshFromBuffer)
-                RefreshFromBuffer();
-
             return true;
         }
 
+        /// <summary>
+        /// Sets a pixel in the given buffer to the given value
+        /// </summary>
+        /// <param name="x">The x position of the pixel</param>
+        /// <param name="y">The y position of the pixel</param>
+        /// <param name="value">The pixel's value</param>
+        /// <param name="buffer">The buffer to set in</param>
+        /// <returns>True if the value was sucessfully written</returns>
         public bool SetPixelInBuffer(int x, int y, bool value, ref bool[,] buffer)
         {
             if ((x < 0) || (x >= 96) || (y < 0) || (y >= 64))
@@ -185,8 +253,15 @@ namespace TiLcdTest
             return true;
         }
 
+        /// <summary>
+        /// Sets the value of each pixel to the values in the given 64x96 array.
+        /// </summary>
+        /// <param name="pixels">The pixels to set. Must be 64x96.</param>
         public void SetScreenBytes(byte[,] pixels)
         {
+            if (pixels.Length != 64*96)
+                return;
+
             for (byte x = 0; x < 96; x += 8)
             {
                 SetX((byte) (x/8));
@@ -205,6 +280,11 @@ namespace TiLcdTest
             }
         }
 
+        /// <summary>
+        /// Writes a binary value to the command interface.
+        /// </summary>
+        /// <param name="di">1 if the command is graphical information, 0 otherwise</param>
+        /// <param name="value">The value to write</param>
         private void WriteBinaryValue(byte di, byte value)
         {
             _ce.Write(false);
@@ -220,6 +300,10 @@ namespace TiLcdTest
             _ce.Write(true);
         }
 
+        /// <summary>
+        /// Sets the word length of the LCD command interface.
+        /// </summary>
+        /// <param name="eightBits">True is the interface should be 8 bits wide</param>
         private void SetWordLength(bool eightBits)
         {
             WriteBinaryValue(0,
@@ -230,11 +314,12 @@ namespace TiLcdTest
         ///     Plot the line from (x0, y0) to (x1, y1)
         /// </summary>
         /// <author>Jason Morley</author>
+        /// <param name="buffer">The buffer to draw the line to</param>
         /// <param name="x0">The start x</param>
         /// <param name="y0">The start y</param>
         /// <param name="x1">The end x</param>
         /// <param name="y1">The end y</param>
-        public void DrawLine(int x0, int y0, int x1, int y1)
+        private void DrawLineToBuffer(ref bool[,] buffer, int x0, int y0, int x1, int y1)
         {
             var steep = Math.Abs(y1 - y0) > Math.Abs(x1 - x0);
             if (steep)
@@ -251,7 +336,8 @@ namespace TiLcdTest
 
             for (var x = x0; x <= x1; ++x)
             {
-                if (!(steep ? SetPixel(y, x, true, false) : SetPixel(x, y, true, false))) return;
+                if (!(steep ? SetPixelInBuffer(y, x, true, ref buffer) : SetPixelInBuffer(x, y, true, ref buffer)))
+                    return;
                 err = err - dY;
                 if (err >= 0) continue;
                 y += ystep;
@@ -259,88 +345,83 @@ namespace TiLcdTest
             }
         }
 
-        public void DrawLineToBuffer(ref bool[,] buffer, int x0, int y0, int x1, int y1)
-        {
-            var steep = Math.Abs(y1 - y0) > Math.Abs(x1 - x0);
-            if (steep)
-            {
-                Utils.Swap(ref x0, ref y0);
-                Utils.Swap(ref x1, ref y1);
-            }
-            if (x0 > x1)
-            {
-                Utils.Swap(ref x0, ref x1);
-                Utils.Swap(ref y0, ref y1);
-            }
-            int dX = x1 - x0, dY = Math.Abs(y1 - y0), err = dX/2, ystep = y0 < y1 ? 1 : -1, y = y0;
-
-            for (var x = x0; x <= x1; ++x)
-            {
-                if (!(steep ? SetPixelInBuffer(y, x, true, ref buffer) : SetPixelInBuffer(x, y, true, ref buffer))) return;
-                err = err - dY;
-                if (err >= 0) continue;
-                y += ystep;
-                err += dX;
-            }
-        }
-
+        /// <summary>
+        /// Begins a drawing routine with the specified mode.
+        /// </summary>
+        /// <param name="mode">The drawing mode to use when rendering</param>
         public void BeginDraw(BeginMode mode)
         {
             _currentMode = mode;
         }
 
+        /// <summary>
+        /// Ends the drawing routine and renders the points to the graphics buffer.
+        /// </summary>
         public void EndDraw()
         {
-            RenderDrawnPoints(_currentMode, _currentPoints);
+            RenderDrawnPoints();
             _currentPoints.Clear();
             _currentMode = BeginMode.None;
         }
 
-        private void RenderDrawnPoints(BeginMode currentMode, IReadOnlyList<Point> currentPoints)
+        /// <summary>
+        /// Renders the points from the point list, and merges the temporary buffer.
+        /// </summary>
+        private void RenderDrawnPoints()
         {
-            if (currentPoints.Count < 2)
+            if (_currentPoints.Count < 2)
                 return;
 
             Point last = null;
 
-            foreach (var currentPoint in currentPoints)
+            foreach (var currentPoint in _currentPoints)
             {
                 if (last != null)
                     DrawLineToBuffer(ref _tempBuffer, last.X, last.Y, currentPoint.X, currentPoint.Y);
                 last = currentPoint;
             }
 
-            switch (currentMode)
+            switch (_currentMode)
             {
                 case BeginMode.LineLoop:
-                    DrawLineToBuffer(ref _tempBuffer, last.X, last.Y, currentPoints[0].X, currentPoints[0].Y);
+                    DrawLineToBuffer(ref _tempBuffer, last.X, last.Y, _currentPoints[0].X, _currentPoints[0].Y);
                     break;
                 case BeginMode.Fill:
-                    DrawLineToBuffer(ref _tempBuffer, last.X, last.Y, currentPoints[0].X, currentPoints[0].Y);
+                    DrawLineToBuffer(ref _tempBuffer, last.X, last.Y, _currentPoints[0].X, _currentPoints[0].Y);
 
-                    var minY = currentPoints.Min(point => point.Y);
-                    var maxY = currentPoints.Max(point => point.Y);
+                    var minX = _currentPoints.Min(point => point.X);
+                    var maxX = _currentPoints.Max(point => point.X);
+                    var minY = _currentPoints.Min(point => point.Y);
+                    var maxY = _currentPoints.Max(point => point.Y);
 
-                    for (var y = 0; y < 64; y++)
-                    {
-                        if (y == minY || y == maxY)
-                            continue;
+                    for (var y = minY - 1; y <= maxY; y++)
+                        for (var x = minX - 1; x <= maxX; x++)
+                            _tempBuffer[y, x] = PointInPolygon(_currentPoints, new Point(x, y));
 
-                        var isFill = false;
-                        for (var x = 0; x < 96; x++)
-                        {
-                            if (_tempBuffer[y, x] && x + 1 < 96 && !_tempBuffer[y, x + 1])
-                                isFill = !isFill;
-                            if (isFill)
-                                _tempBuffer[y, x] = true;
-                        }
-                    }
                     break;
             }
 
             MergeTempBuffer();
         }
 
+        public bool PointInPolygon(List<Point> polygon, Point p)
+        {
+            var inside = false;
+            for (int i = 0, j = polygon.Count - 1; i < polygon.Count; j = i++)
+            {
+                if (polygon[i].Y > p.Y != polygon[j].Y > p.Y &&
+                    p.X <
+                    (polygon[j].X - polygon[i].X)*(p.Y - polygon[i].Y)/(polygon[j].Y - polygon[i].Y) + polygon[i].X)
+                {
+                    inside = !inside;
+                }
+            }
+            return inside;
+        }
+
+        /// <summary>
+        /// Merges the temporary buffer with the graphics buffer using OR.
+        /// </summary>
         private void MergeTempBuffer()
         {
             for (byte x = 0; x < 96; x++)
@@ -349,6 +430,9 @@ namespace TiLcdTest
             ClearTempBuffer();
         }
 
+        /// <summary>
+        /// Clears the temporary buffer.
+        /// </summary>
         private void ClearTempBuffer()
         {
             for (byte x = 0; x < 96; x++)
@@ -356,10 +440,105 @@ namespace TiLcdTest
                     _tempBuffer[y, x] = false;
         }
 
+        /// <summary>
+        /// Adds a point to the temporary buffer. When <see cref="EndDraw"/> is called, the buffer is drawn.
+        /// </summary>
+        /// <param name="x">The x position of the point</param>
+        /// <param name="y">The y position of the point</param>
         public void AddPoint(int x, int y)
         {
             if (_currentMode != BeginMode.None)
                 _currentPoints.Add(new Point(x, y));
+        }
+
+        /// <summary>
+        /// Draws the specified text to screen. Edge-to-edge the screen can fit 16x10 lines of text.
+        /// </summary>
+        /// <param name="x">The x position of the string</param>
+        /// <param name="y">The y position of the string</param>
+        /// <param name="s">The string to draw</param>
+        public void DrawText(int x, int y, string s)
+        {
+            if (_currentMode != BeginMode.None)
+                return;
+
+            TiDefaultFont.RenderStringToBuffer(x, y, s, ref _tempBuffer);
+            MergeTempBuffer();
+        }
+
+        public void DrawRectangle(int x, int y, int w, int h, bool filled)
+        {
+            if (_currentMode != BeginMode.None)
+                return;
+
+            BeginDraw(filled ? BeginMode.Fill : BeginMode.LineLoop);
+
+            AddPoint(x, y);
+            AddPoint(x, y + h);
+            AddPoint(x + w, y + h);
+            AddPoint(x + w, y);
+
+            EndDraw();
+        }
+
+        public void DrawCircle(int x, int y, int r, bool filled)
+        {
+            DrawPartialCircle(x, y, r, 1, filled);
+        }
+
+        public void DrawPartialCircle(int x, int y, int r, float percent, bool filled)
+        {
+            if (_currentMode != BeginMode.None)
+                return;
+
+            BeginDraw(filled ? BeginMode.Fill : BeginMode.LineLoop);
+
+            AddPoint(x, y);
+
+            for (var i = 0; i <= 360*percent; i += 2)
+            {
+                var nx = (int) Math.Round(Math.Sin(i*3.141526f/180)*r);
+                var ny = (int) Math.Round(Math.Cos(i*3.141526f/180)*r);
+                AddPoint(x + nx, y - ny);
+            }
+
+            EndDraw();
+        }
+
+        /*public void DrawDonut(int x, int y, int r, float stripSize)
+        {
+            DrawPartialDonut(x, y, r, stripSize, 1);
+        }
+
+        public void DrawPartialDonut(int x, int y, int r, float stripSize, float percent)
+        {
+            if (_currentMode != BeginMode.None)
+                return;
+
+            BeginDraw(BeginMode.Fill);
+
+            AddPoint(x, y);
+
+            for (var i = 0; i <= 360 * percent; i++)
+            {
+                var nx = (int)Math.Round(Math.Sin(i * 3.141526f / 180) * (r - stripSize));
+                var ny = (int)Math.Round(Math.Cos(i * 3.141526f / 180) * (r - stripSize));
+                AddPoint(nx + x, ny + y);
+
+                nx = (int)Math.Round(Math.Sin(i * 3.141526f / 180) * r);
+                ny = (int)Math.Round(Math.Cos(i * 3.141526f / 180) * r);
+                AddPoint(nx + x, ny + y);
+            }
+
+            EndDraw();
+        }*/
+
+        /// <summary>
+        /// Public bridge for <see cref="ClearScreenBuffer"/>.
+        /// </summary>
+        public void Clear()
+        {
+            ClearScreenBuffer();
         }
     }
 }

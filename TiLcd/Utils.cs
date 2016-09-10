@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Windows.Devices.Gpio;
 
 namespace TiLcdTest
@@ -23,20 +25,39 @@ namespace TiLcdTest
             return r;
         }
 
-        public static byte[] GetPixelRow(this byte[,] array, int row)
-        {
-            const int d2 = 64;
-            
-            var target = new byte[d2];
-            
-            Buffer.BlockCopy(array, d2 * row, target, 0, d2);
-
-            return target;
-        }
-
         public static void Swap<T>(ref T lhs, ref T rhs)
         {
             var temp = lhs; lhs = rhs; rhs = temp;
+        }
+
+        public static bool[][] ToBoolArray(this byte[] array)
+        {
+            var ret = new bool[array.Length][];
+
+            var n = 0;
+            foreach (var b in array)
+            {
+                ret[n] = new[]
+                {
+                    (b & 128) == 128,
+                    (b & 64) == 64,
+                    (b & 32) == 32,
+                    (b & 16) == 16,
+                    (b & 8) == 8,
+                    (b & 4) == 4,
+                    (b & 2) == 2,
+                    (b & 1) == 1
+                };
+
+                n++;
+            }
+
+            return ret;
+        }
+
+        public static void Delay(this int delay)
+        {
+            Task.Delay(delay).Wait();
         }
     }
 }

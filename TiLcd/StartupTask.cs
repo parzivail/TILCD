@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 
 namespace TiLcdTest
@@ -13,19 +15,31 @@ namespace TiLcdTest
         {
             var lcd = new TiLcd(18, 23, 4, 25, 17, 27, 22, 5, 6, 13, 19, 26);
 
-            lcd.Init(48);
+            lcd.Init();
 
-            lcd.BeginDraw(BeginMode.Fill);
-            lcd.AddPoint(19, 29);
-            lcd.AddPoint(49, 16);
-            lcd.AddPoint(48, 5);
-            lcd.AddPoint(24, 5);
-            lcd.AddPoint(7, 13);
-            lcd.EndDraw();
+            float f = 0;
+            while (true)
+            {
+                lcd.Clear();
+                
+                lcd.DrawPartialCircle(20, 32, 12, f, true);
 
-            lcd.RefreshFromBuffer();
+                lcd.DrawPartialCircle(60, 32, 12, 1 - f, true);
 
-            while (true) ; // Let the Pi actually do stuff
+                lcd.RefreshFromBuffer();
+
+                f += 0.01f;
+
+                if (f > 1)
+                    f = 0;
+
+                100.Delay();
+            }
+        }
+
+        private static string GetTime()
+        {
+            return DateTime.Now.ToString("hh:mm:ss tt");
         }
     }
 }
