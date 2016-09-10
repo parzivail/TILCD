@@ -8,7 +8,6 @@ namespace TiLcdTest
     internal class TiLcd
     {
         private readonly GpioPin _ce;
-        private readonly List<Point> _currentPoints;
         private readonly GpioPin _d0;
         private readonly GpioPin _d1;
         private readonly GpioPin _d2;
@@ -19,13 +18,12 @@ namespace TiLcdTest
         private readonly GpioPin _d7;
         private readonly GpioPin _di;
         private readonly GpioPin _rst;
-        private readonly GpioPin _wr;
-
-        internal readonly bool[,] GraphicsBuffer = new bool[64, 96];
         private byte _contrast;
 
-        private BeginMode _currentMode;
+        internal readonly bool[,] GraphicsBuffer = new bool[64, 96];
 
+        private BeginMode _currentMode;
+        private readonly List<Point> _currentPoints;
         private bool[,] _tempBuffer = new bool[64, 96];
 
         public TiLcd(byte ce, byte di, byte wr, byte rst, byte d0, byte d1, byte d2, byte d3, byte d4, byte d5, byte d6,
@@ -40,8 +38,8 @@ namespace TiLcdTest
             _ce.SetDriveMode(GpioPinDriveMode.Output);
             _di = gpio.OpenPin(di);
             _di.SetDriveMode(GpioPinDriveMode.Output);
-            _wr = gpio.OpenPin(wr);
-            _wr.SetDriveMode(GpioPinDriveMode.Output);
+            var wr1 = gpio.OpenPin(wr); // Local variable because I don't think I'll ever implement status read, only write.
+            wr1.SetDriveMode(GpioPinDriveMode.Output);
             _rst = gpio.OpenPin(rst);
             _rst.SetDriveMode(GpioPinDriveMode.Output);
 
@@ -64,7 +62,7 @@ namespace TiLcdTest
 
             _contrast = 48;
 
-            _wr.Write(false);
+            wr1.Write(false);
 
             _currentMode = BeginMode.None;
             _currentPoints = new List<Point>();

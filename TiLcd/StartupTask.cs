@@ -16,30 +16,10 @@ namespace TiLcdTest
             var lcd = new TiLcd(18, 23, 4, 25, 17, 27, 22, 5, 6, 13, 19, 26);
 
             lcd.Init();
+            
+            // Do stuff
 
-            float f = 0;
-            while (true)
-            {
-                lcd.Clear();
-                
-                lcd.DrawPartialDonut(20, 32, 12, 3, f, true);
-
-                lcd.DrawPartialDonut(60, 32, 12, 3, 1 - f, false);
-
-                lcd.RefreshFromBuffer();
-
-                f += 0.01f;
-
-                if (f > 1)
-                    f = 0;
-
-                100.Delay();
-            }
-        }
-
-        private static string GetTime()
-        {
-            return DateTime.Now.ToString("hh:mm:ss tt");
+            while (true) ;
         }
     }
 }
