@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{E42A9CF8-DE9B-4257-91C1-D24BB9734D65}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>winmdobj</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LcdDriver</RootNamespace>
     <AssemblyName>LcdDriver</AssemblyName>
@@ -96,17 +96,7 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandMask.cs" />
-    <Compile Include="CounterMode.cs" />
-    <Compile Include="DisplayState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TiCharacter.cs" />
-    <Compile Include="TiCommand.cs" />
-    <Compile Include="TiDefaultFont.cs" />
-    <Compile Include="TiGraphics.cs" />
-    <Compile Include="TiLcd.cs" />
-    <Compile Include="Utils.cs" />
-    <Compile Include="WordLength.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

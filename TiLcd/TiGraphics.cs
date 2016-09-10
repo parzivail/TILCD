@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LcdDriver
+namespace TiLcdTest
 {
     class TiGraphics
     {
         private readonly TiLcd _lcd;
-        private TiLcd.BeginMode _currentMode;
-        private List<TiLcd.Point> _currentPoints;
+        private BeginMode _currentMode;
+        private List<Point> _currentPoints;
 
         public TiGraphics(ref TiLcd lcd)
         {
             _lcd = lcd;
-            _currentPoints = new List<TiLcd.Point>();
+            _currentPoints = new List<Point>();
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace LcdDriver
             }
         }
 
-        public void BeginDraw(TiLcd.BeginMode mode)
+        public void BeginDraw(BeginMode mode)
         {
             _currentMode = mode;
         }
@@ -47,18 +47,18 @@ namespace LcdDriver
         public void EndDraw()
         {
             RenderDrawnPoints(_currentMode, _currentPoints);
-            _currentMode = TiLcd.BeginMode.None;
+            _currentMode = BeginMode.None;
         }
 
-        private void RenderDrawnPoints(TiLcd.BeginMode currentMode, List<TiLcd.Point> currentPoints)
+        private void RenderDrawnPoints(BeginMode currentMode, List<Point> currentPoints)
         {
             throw new NotImplementedException();
         }
 
         public void AddPoint(int x, int y)
         {
-            if (_currentMode != TiLcd.BeginMode.None)
-                _currentPoints.Add(new TiLcd.Point(x, y));
+            if (_currentMode != BeginMode.None)
+                _currentPoints.Add(new Point(x, y));
         }
     }
 }

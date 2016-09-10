@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Net.Http;
 using Windows.ApplicationModel.Background;
-using LcdDriver;
 
 namespace TiLcdTest
 {
@@ -16,7 +15,7 @@ namespace TiLcdTest
 
             lcd.Init(48);
 
-            lcd.BeginDraw(TiLcd.BeginMode.Fill);
+            lcd.BeginDraw(BeginMode.Fill);
             lcd.AddPoint(19, 29);
             lcd.AddPoint(49, 16);
             lcd.AddPoint(48, 5);

@@ -1,7 +1,7 @@
 ﻿using System;
 using Windows.Devices.Gpio;
 
-namespace LcdDriver
+namespace TiLcdTest
 {
     internal static class Utils
     {

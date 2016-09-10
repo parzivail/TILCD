@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TiLcdDriver")]
+[assembly: AssemblyTitle("TiLcdNonUni")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TiLcdDriver")]
+[assembly: AssemblyProduct("TiLcdNonUni")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b3dffdd1-8ac1-4d38-b3ce-611999b9720e")]
+[assembly: Guid("cd46884b-6534-41c9-b988-47c6892e6bf6")]
 
 // Version information for an assembly consists of the following four values:
 //

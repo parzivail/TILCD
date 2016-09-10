@@ -1,4 +1,4 @@
-﻿namespace LcdDriver
+﻿namespace TiLcdTest
 {
     class TiCharacter
     {

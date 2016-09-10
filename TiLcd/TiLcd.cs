@@ -4,18 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Devices.Gpio;
 
-namespace LcdDriver
+namespace TiLcdTest
 {
-    public class TiLcd
+    internal class TiLcd
     {
-        public enum BeginMode
-        {
-            None,
-            Line,
-            LineLoop,
-            Fill
-        }
-
         private readonly GpioPin _ce;
         private readonly List<Point> _currentPoints;
         private readonly GpioPin _d0;
@@ -30,7 +22,7 @@ namespace LcdDriver
         private readonly GpioPin _rst;
         private readonly GpioPin _wr;
 
-        public readonly bool[,] GraphicsBuffer = new bool[64, 96];
+        internal readonly bool[,] GraphicsBuffer = new bool[64, 96];
         private byte _contrast;
 
         private BeginMode _currentMode;
@@ -101,9 +93,9 @@ namespace LcdDriver
 
         public void Reset()
         {
-            Utils.Write(_rst, false);
+            _rst.Write(false);
             Task.Delay(100).Wait();
-            Utils.Write(_rst, true);
+            _rst.Write(true);
             Init(_contrast);
         }
 
@@ -147,10 +139,10 @@ namespace LcdDriver
 
         public void RefreshFromBuffer()
         {
-            SetScreenBytes(GraphicsBuffer);
+            SetScreenBools(GraphicsBuffer);
         }
 
-        public void SetScreenBytes(bool[,] pixels)
+        public void SetScreenBools(bool[,] pixels)
         {
             for (byte x = 0; x < 96; x += 8)
             {
@@ -183,7 +175,7 @@ namespace LcdDriver
             return true;
         }
 
-        public bool SetPixel(int x, int y, bool value, ref bool[,] buffer)
+        public bool SetPixelInBuffer(int x, int y, bool value, ref bool[,] buffer)
         {
             if ((x < 0) || (x >= 96) || (y < 0) || (y >= 64))
                 return false;
@@ -215,17 +207,17 @@ namespace LcdDriver
 
         private void WriteBinaryValue(byte di, byte value)
         {
-            Utils.Write(_ce, false);
-            Utils.Write(_di, di);
-            Utils.Write(_d0, value & 1);
-            Utils.Write(_d1, value & 2);
-            Utils.Write(_d2, value & 4);
-            Utils.Write(_d3, value & 8);
-            Utils.Write(_d4, value & 16);
-            Utils.Write(_d5, value & 32);
-            Utils.Write(_d6, value & 64);
-            Utils.Write(_d7, value & 128);
-            Utils.Write(_ce, true);
+            _ce.Write(false);
+            _di.Write(di);
+            _d0.Write(value & 1);
+            _d1.Write(value & 2);
+            _d2.Write(value & 4);
+            _d3.Write(value & 8);
+            _d4.Write(value & 16);
+            _d5.Write(value & 32);
+            _d6.Write(value & 64);
+            _d7.Write(value & 128);
+            _ce.Write(true);
         }
 
         private void SetWordLength(bool eightBits)
@@ -284,7 +276,7 @@ namespace LcdDriver
 
             for (var x = x0; x <= x1; ++x)
             {
-                if (!(steep ? SetPixel(y, x, true, ref buffer) : SetPixel(x, y, true, ref buffer))) return;
+                if (!(steep ? SetPixelInBuffer(y, x, true, ref buffer) : SetPixelInBuffer(x, y, true, ref buffer))) return;
                 err = err - dY;
                 if (err >= 0) continue;
                 y += ystep;
@@ -368,18 +360,6 @@ namespace LcdDriver
         {
             if (_currentMode != BeginMode.None)
                 _currentPoints.Add(new Point(x, y));
-        }
-
-        public class Point
-        {
-            public Point(int x, int y)
-            {
-                X = x;
-                Y = y;
-            }
-
-            public int X { get; set; }
-            public int Y { get; set; }
         }
     }
 }
