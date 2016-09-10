@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Windows.Devices.Gpio;
 
 namespace TiLcdTest
@@ -74,19 +73,11 @@ namespace TiLcdTest
             ClearTempBuffer();
         }
 
-        /// <summary>
-        /// Clears the graphics buffer.
-        /// </summary>
-        private void ClearScreenBuffer()
-        {
-            for (byte x = 0; x < 96; x++)
-                for (byte y = 0; y < 64; y++)
-                    GraphicsBuffer[y, x] = false;
-        }
-
+        #region LCD Control
 
         /// <summary>
-        /// Initializes the display. Sets the word length to 8, counter mode to <see cref="CounterMode.XUp"/>, display state to <see cref="DisplayState.On"/>, and contrast to [contrast = 48].
+        ///     Initializes the display. Sets the word length to 8, counter mode to <see cref="CounterMode.XUp" />, display state
+        ///     to <see cref="DisplayState.On" />, and contrast to [contrast = 48].
         /// </summary>
         /// <param name="contrast">The contrast of the display. Optional.</param>
         public void Init(byte contrast = 48)
@@ -100,7 +91,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Resets the display.
+        ///     Resets the display.
         /// </summary>
         public void Reset()
         {
@@ -111,7 +102,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Sets the <see cref="DisplayState"/> of the display.
+        ///     Sets the <see cref="DisplayState" /> of the display.
         /// </summary>
         /// <param name="state">The state, 0 or 1.</param>
         public void SetDisplayState(byte state)
@@ -120,20 +111,20 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// This command selects the counter and the up/down mode. For instance, when X-counter/up mode is selected,
-        /// the X-address is incremented in response to every data read and write.However, when X-counter/up mode is
-        /// selected, the address in the Y-(page) counter will not change.Hence the Y-address must be set (with the SYE
-        /// command) before it can be changed.
+        ///     This command selects the counter and the up/down mode. For instance, when X-counter/up mode is selected,
+        ///     the X-address is incremented in response to every data read and write.However, when X-counter/up mode is
+        ///     selected, the address in the Y-(page) counter will not change.Hence the Y-address must be set (with the SYE
+        ///     command) before it can be changed.
         /// </summary>
-        /// <param name="mode">The mode (of type <see cref="CounterMode"/>)</param>
+        /// <param name="mode">The mode (of type <see cref="CounterMode" />)</param>
         public void SetCounterMode(byte mode)
         {
             WriteBinaryValue(0, (byte) (TiCommand.CounterModeSet | mode));
         }
 
         /// <summary>
-        /// This command sets the contrast for the LCD. The LCD contrast can be set in 64 steps. The command C0H
-        /// selects the brightest level; the command FFH selects the darkest.
+        ///     This command sets the contrast for the LCD. The LCD contrast can be set in 64 steps. The command C0H
+        ///     selects the brightest level; the command FFH selects the darkest.
         /// </summary>
         /// <param name="contrast"></param>
         public void SetContrast(byte contrast)
@@ -142,7 +133,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Sets the physical position of the register pointer for 8 bit writing.
+        ///     Sets the physical position of the register pointer for 8 bit writing.
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -153,7 +144,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Sets the physical X value of the LCD driver's buffer. Note this is technically the Y/Page buffer.
+        ///     Sets the physical X value of the LCD driver's buffer. Note this is technically the Y/Page buffer.
         /// </summary>
         /// <param name="x"></param>
         public void SetX(byte x)
@@ -163,9 +154,9 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// This command sets the top row of the LCD screen, irrespective of the current X-address. For instance, when
-        /// the Z-address is 32, the top row of the LCD screen is address 32 of the display RAM, and the bottom row of the
-        /// LCD screen is address 31 of the display RAM.
+        ///     This command sets the top row of the LCD screen, irrespective of the current X-address. For instance, when
+        ///     the Z-address is 32, the top row of the LCD screen is address 32 of the display RAM, and the bottom row of the
+        ///     LCD screen is address 31 of the display RAM.
         /// </summary>
         /// <param name="z">The y address</param>
         public void SetZ(byte z)
@@ -174,7 +165,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Sets the physical Y value of the LCD driver's buffer. Note this is technically the X buffer.
+        ///     Sets the physical Y value of the LCD driver's buffer. Note this is technically the X buffer.
         /// </summary>
         /// <param name="y">The y position between 0 and 63</param>
         public void SetY(byte y)
@@ -184,7 +175,59 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// refreshes the screen from the internal graphics buffer, overwriting any previous screen content.
+        ///     Writes a binary value to the command interface.
+        /// </summary>
+        /// <param name="di">1 if the command is graphical information, 0 otherwise</param>
+        /// <param name="value">The value to write</param>
+        private void WriteBinaryValue(byte di, byte value)
+        {
+            _ce.Write(false);
+            _di.Write(di);
+            _d0.Write(value & 1);
+            _d1.Write(value & 2);
+            _d2.Write(value & 4);
+            _d3.Write(value & 8);
+            _d4.Write(value & 16);
+            _d5.Write(value & 32);
+            _d6.Write(value & 64);
+            _d7.Write(value & 128);
+            _ce.Write(true);
+        }
+
+        /// <summary>
+        ///     Sets the word length of the LCD command interface.
+        /// </summary>
+        /// <param name="eightBits">True is the interface should be 8 bits wide</param>
+        private void SetWordLength(bool eightBits)
+        {
+            WriteBinaryValue(0,
+                (byte) (TiCommand.WordLengthSet | (eightBits ? WordLength.EightBits : WordLength.SixBits)));
+        }
+
+        #endregion
+
+        #region Graphics Buffer
+
+        /// <summary>
+        ///     Clears the graphics buffer.
+        /// </summary>
+        private void ClearScreenBuffer()
+        {
+            for (byte x = 0; x < 96; x++)
+                for (byte y = 0; y < 64; y++)
+                    GraphicsBuffer[y, x] = false;
+        }
+
+        /// <summary>
+        ///     Public bridge for <see cref="ClearScreenBuffer" />.
+        /// </summary>
+        public void Clear()
+        {
+            ClearScreenBuffer();
+        }
+
+        /// <summary>
+        ///     refreshes the screen from the internal graphics buffer, overwriting any previous screen content.
         /// </summary>
         public void RefreshFromBuffer()
         {
@@ -192,7 +235,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Sets the value of each pixel to the values in the given 64x96 array.
+        ///     Sets the value of each pixel to the values in the given 64x96 array.
         /// </summary>
         /// <param name="pixels">The pixels to set. Must be 64x96.</param>
         public void SetScreenBools(bool[,] pixels)
@@ -219,7 +262,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Sets a pixel in the given buffer to the given value
+        ///     Sets a pixel in the given buffer to the given value
         /// </summary>
         /// <param name="x">The x position of the pixel</param>
         /// <param name="y">The y position of the pixel</param>
@@ -236,7 +279,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Sets a pixel in the given buffer to the given value
+        ///     Sets a pixel in the given buffer to the given value
         /// </summary>
         /// <param name="x">The x position of the pixel</param>
         /// <param name="y">The y position of the pixel</param>
@@ -254,7 +297,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Sets the value of each pixel to the values in the given 64x96 array.
+        ///     Sets the value of each pixel to the values in the given 64x96 array.
         /// </summary>
         /// <param name="pixels">The pixels to set. Must be 64x96.</param>
         public void SetScreenBytes(byte[,] pixels)
@@ -281,34 +324,99 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Writes a binary value to the command interface.
+        ///     Begins a drawing routine with the specified mode.
         /// </summary>
-        /// <param name="di">1 if the command is graphical information, 0 otherwise</param>
-        /// <param name="value">The value to write</param>
-        private void WriteBinaryValue(byte di, byte value)
+        /// <param name="mode">The drawing mode to use when rendering</param>
+        public void BeginDraw(BeginMode mode)
         {
-            _ce.Write(false);
-            _di.Write(di);
-            _d0.Write(value & 1);
-            _d1.Write(value & 2);
-            _d2.Write(value & 4);
-            _d3.Write(value & 8);
-            _d4.Write(value & 16);
-            _d5.Write(value & 32);
-            _d6.Write(value & 64);
-            _d7.Write(value & 128);
-            _ce.Write(true);
+            _currentMode = mode;
         }
 
         /// <summary>
-        /// Sets the word length of the LCD command interface.
+        ///     Ends the drawing routine and renders the points to the graphics buffer.
         /// </summary>
-        /// <param name="eightBits">True is the interface should be 8 bits wide</param>
-        private void SetWordLength(bool eightBits)
+        public void EndDraw()
         {
-            WriteBinaryValue(0,
-                (byte) (TiCommand.WordLengthSet | (eightBits ? WordLength.EightBits : WordLength.SixBits)));
+            RenderDrawnPoints();
+            _currentPoints.Clear();
+            _currentMode = BeginMode.None;
         }
+
+        /// <summary>
+        ///     Renders the points from the point list, and merges the temporary buffer.
+        /// </summary>
+        private void RenderDrawnPoints()
+        {
+            if (_currentPoints.Count < 2)
+                return;
+
+            Point last = null;
+
+            foreach (var currentPoint in _currentPoints)
+            {
+                if (last != null)
+                    DrawLineToBuffer(ref _tempBuffer, last.X, last.Y, currentPoint.X, currentPoint.Y);
+                last = currentPoint;
+            }
+
+            switch (_currentMode)
+            {
+                case BeginMode.LineLoop:
+                    DrawLineToBuffer(ref _tempBuffer, last.X, last.Y, _currentPoints[0].X, _currentPoints[0].Y);
+                    break;
+                case BeginMode.Fill:
+                    DrawLineToBuffer(ref _tempBuffer, last.X, last.Y, _currentPoints[0].X, _currentPoints[0].Y);
+
+                    var minX = _currentPoints.Min(point => point.X);
+                    var maxX = _currentPoints.Max(point => point.X);
+                    var minY = _currentPoints.Min(point => point.Y);
+                    var maxY = _currentPoints.Max(point => point.Y);
+
+                    for (var y = minY - 1; y <= maxY; y++)
+                        for (var x = minX - 1; x <= maxX; x++)
+                            _tempBuffer[y, x] = new Point(x, y).PointInPolygon(_currentPoints);
+
+                    break;
+            }
+
+            MergeTempBuffer();
+        }
+
+        /// <summary>
+        ///     Merges the temporary buffer with the graphics buffer using OR.
+        /// </summary>
+        private void MergeTempBuffer()
+        {
+            for (byte x = 0; x < 96; x++)
+                for (byte y = 0; y < 64; y++)
+                    GraphicsBuffer[y, x] = GraphicsBuffer[y, x] || _tempBuffer[y, x];
+            ClearTempBuffer();
+        }
+
+        /// <summary>
+        ///     Clears the temporary buffer.
+        /// </summary>
+        private void ClearTempBuffer()
+        {
+            for (byte x = 0; x < 96; x++)
+                for (byte y = 0; y < 64; y++)
+                    _tempBuffer[y, x] = false;
+        }
+
+        /// <summary>
+        ///     Adds a point to the temporary buffer. When <see cref="EndDraw" /> is called, the buffer is drawn.
+        /// </summary>
+        /// <param name="x">The x position of the point</param>
+        /// <param name="y">The y position of the point</param>
+        public void AddPoint(int x, int y)
+        {
+            if (_currentMode != BeginMode.None)
+                _currentPoints.Add(new Point(x, y));
+        }
+
+        #endregion
+
+        #region Drawing Methods
 
         /// <summary>
         ///     Plot the line from (x0, y0) to (x1, y1)
@@ -346,113 +454,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Begins a drawing routine with the specified mode.
-        /// </summary>
-        /// <param name="mode">The drawing mode to use when rendering</param>
-        public void BeginDraw(BeginMode mode)
-        {
-            _currentMode = mode;
-        }
-
-        /// <summary>
-        /// Ends the drawing routine and renders the points to the graphics buffer.
-        /// </summary>
-        public void EndDraw()
-        {
-            RenderDrawnPoints();
-            _currentPoints.Clear();
-            _currentMode = BeginMode.None;
-        }
-
-        /// <summary>
-        /// Renders the points from the point list, and merges the temporary buffer.
-        /// </summary>
-        private void RenderDrawnPoints()
-        {
-            if (_currentPoints.Count < 2)
-                return;
-
-            Point last = null;
-
-            foreach (var currentPoint in _currentPoints)
-            {
-                if (last != null)
-                    DrawLineToBuffer(ref _tempBuffer, last.X, last.Y, currentPoint.X, currentPoint.Y);
-                last = currentPoint;
-            }
-
-            switch (_currentMode)
-            {
-                case BeginMode.LineLoop:
-                    DrawLineToBuffer(ref _tempBuffer, last.X, last.Y, _currentPoints[0].X, _currentPoints[0].Y);
-                    break;
-                case BeginMode.Fill:
-                    DrawLineToBuffer(ref _tempBuffer, last.X, last.Y, _currentPoints[0].X, _currentPoints[0].Y);
-
-                    var minX = _currentPoints.Min(point => point.X);
-                    var maxX = _currentPoints.Max(point => point.X);
-                    var minY = _currentPoints.Min(point => point.Y);
-                    var maxY = _currentPoints.Max(point => point.Y);
-
-                    for (var y = minY - 1; y <= maxY; y++)
-                        for (var x = minX - 1; x <= maxX; x++)
-                            _tempBuffer[y, x] = PointInPolygon(_currentPoints, new Point(x, y));
-
-                    break;
-            }
-
-            MergeTempBuffer();
-        }
-
-        public bool PointInPolygon(List<Point> polygon, Point p)
-        {
-            var inside = false;
-            for (int i = 0, j = polygon.Count - 1; i < polygon.Count; j = i++)
-            {
-                if (polygon[i].Y > p.Y != polygon[j].Y > p.Y &&
-                    p.X <
-                    (polygon[j].X - polygon[i].X)*(p.Y - polygon[i].Y)/(polygon[j].Y - polygon[i].Y) + polygon[i].X)
-                {
-                    inside = !inside;
-                }
-            }
-            return inside;
-        }
-
-        /// <summary>
-        /// Merges the temporary buffer with the graphics buffer using OR.
-        /// </summary>
-        private void MergeTempBuffer()
-        {
-            for (byte x = 0; x < 96; x++)
-                for (byte y = 0; y < 64; y++)
-                    GraphicsBuffer[y, x] = GraphicsBuffer[y, x] || _tempBuffer[y, x];
-            ClearTempBuffer();
-        }
-
-        /// <summary>
-        /// Clears the temporary buffer.
-        /// </summary>
-        private void ClearTempBuffer()
-        {
-            for (byte x = 0; x < 96; x++)
-                for (byte y = 0; y < 64; y++)
-                    _tempBuffer[y, x] = false;
-        }
-
-        /// <summary>
-        /// Adds a point to the temporary buffer. When <see cref="EndDraw"/> is called, the buffer is drawn.
-        /// </summary>
-        /// <param name="x">The x position of the point</param>
-        /// <param name="y">The y position of the point</param>
-        public void AddPoint(int x, int y)
-        {
-            if (_currentMode != BeginMode.None)
-                _currentPoints.Add(new Point(x, y));
-        }
-
-        /// <summary>
-        /// Draws the specified text to screen. Edge-to-edge the screen can fit 16x10 lines of text.
+        ///     Draws the specified text to screen. Edge-to-edge the screen can fit 16x10 lines of text.
         /// </summary>
         /// <param name="x">The x position of the string</param>
         /// <param name="y">The y position of the string</param>
@@ -467,7 +469,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Draws a rectangle to the graphics buffer.
+        ///     Draws a rectangle to the graphics buffer.
         /// </summary>
         /// <param name="x">The x of the rectangle</param>
         /// <param name="y">The y of the rectangle</param>
@@ -490,7 +492,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Draws a circle to the graphics buffer.
+        ///     Draws a circle to the graphics buffer.
         /// </summary>
         /// <param name="x">The x of the circle</param>
         /// <param name="y">The y of the circle</param>
@@ -502,7 +504,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Draws a partial circle to the graphics buffer.
+        ///     Draws a partial circle to the graphics buffer.
         /// </summary>
         /// <param name="x">The x of the circle</param>
         /// <param name="y">The y of the circle</param>
@@ -529,7 +531,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Draws a donut to the graphics buffer.
+        ///     Draws a donut to the graphics buffer.
         /// </summary>
         /// <param name="x">The x of the donut</param>
         /// <param name="y">The y of the donut</param>
@@ -542,7 +544,7 @@ namespace TiLcdTest
         }
 
         /// <summary>
-        /// Draws a partial donut to the graphics buffer.
+        ///     Draws a partial donut to the graphics buffer.
         /// </summary>
         /// <param name="x">The x of the donut</param>
         /// <param name="y">The y of the donut</param>
@@ -576,12 +578,6 @@ namespace TiLcdTest
             EndDraw();
         }
 
-        /// <summary>
-        /// Public bridge for <see cref="ClearScreenBuffer"/>.
-        /// </summary>
-        public void Clear()
-        {
-            ClearScreenBuffer();
-        }
+        #endregion
     }
 }
