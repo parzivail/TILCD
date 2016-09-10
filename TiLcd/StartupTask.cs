@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Net.Http;
 using Windows.ApplicationModel.Background;
+using LcdDriver;
 
-namespace TiLcd
+namespace TiLcdTest
 {
     public sealed class StartupTask : IBackgroundTask
     {

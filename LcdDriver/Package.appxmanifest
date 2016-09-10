@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
@@ -8,14 +8,14 @@
   IgnorableNamespaces="uap mp iot">
 
   <Identity
-    Name="TiLcdTest-uwp"
+    Name="LcdDriver-uwp"
     Publisher="CN=colby"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="e4e3fcf3-aa98-4fa6-867b-8aa93dd10908" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="457a47d6-0efd-4e66-bbee-1bd3ee5f877d" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>TiLcdTest</DisplayName>
+    <DisplayName>LcdDriver</DisplayName>
     <PublisherDisplayName>colby</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -31,17 +31,17 @@
   <Applications>
     <Application Id="App">
       <uap:VisualElements
-        DisplayName="TiLcdTest"
+        DisplayName="LcdDriver"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="TiLcdTest"
+        Description="LcdDriver"
         BackgroundColor="transparent"
         AppListEntry="none">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
-        <Extension Category="windows.backgroundTasks" EntryPoint="TiLcdTest.StartupTask">
+        <Extension Category="windows.backgroundTasks" EntryPoint="LcdDriver.StartupTask">
           <BackgroundTasks>
             <iot:Task Type="startup" />
           </BackgroundTasks>

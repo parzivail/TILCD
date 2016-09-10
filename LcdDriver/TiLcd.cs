@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Devices.Gpio;
 
-namespace TiLcd
+namespace LcdDriver
 {
-    internal class TiLcd
+    public class TiLcd
     {
         public enum BeginMode
         {
@@ -101,9 +101,9 @@ namespace TiLcd
 
         public void Reset()
         {
-            _rst.Write(false);
+            Utils.Write(_rst, false);
             Task.Delay(100).Wait();
-            _rst.Write(true);
+            Utils.Write(_rst, true);
             Init(_contrast);
         }
 
@@ -215,17 +215,17 @@ namespace TiLcd
 
         private void WriteBinaryValue(byte di, byte value)
         {
-            _ce.Write(false);
-            _di.Write(di);
-            _d0.Write(value & 1);
-            _d1.Write(value & 2);
-            _d2.Write(value & 4);
-            _d3.Write(value & 8);
-            _d4.Write(value & 16);
-            _d5.Write(value & 32);
-            _d6.Write(value & 64);
-            _d7.Write(value & 128);
-            _ce.Write(true);
+            Utils.Write(_ce, false);
+            Utils.Write(_di, di);
+            Utils.Write(_d0, value & 1);
+            Utils.Write(_d1, value & 2);
+            Utils.Write(_d2, value & 4);
+            Utils.Write(_d3, value & 8);
+            Utils.Write(_d4, value & 16);
+            Utils.Write(_d5, value & 32);
+            Utils.Write(_d6, value & 64);
+            Utils.Write(_d7, value & 128);
+            Utils.Write(_ce, true);
         }
 
         private void SetWordLength(bool eightBits)

@@ -1,4 +1,4 @@
-﻿namespace TiLcd
+﻿namespace LcdDriver
 {
     internal class CounterMode
     {
