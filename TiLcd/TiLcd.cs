@@ -454,15 +454,32 @@ namespace TiLcdTest
         /// <summary>
         ///     Draws the specified text to screen. Edge-to-edge the screen can fit 16x10 lines of text.
         /// </summary>
+        /// <param name="font">The font to draw the text with</param>
         /// <param name="x">The x position of the string</param>
         /// <param name="y">The y position of the string</param>
         /// <param name="s">The string to draw</param>
-        public void DrawText(int x, int y, string s)
+        public void DrawText(TiFontBase font, int x, int y, string s)
         {
             if (_currentMode != BeginMode.None)
                 return;
 
-            TiDefaultFont.RenderStringToBuffer(x, y, s, ref _tempBuffer);
+            font.RenderStringToBuffer(x, y, s, ref _tempBuffer);
+            MergeTempBuffer();
+        }
+
+        /// <summary>
+        ///     Draws the specified text to screen centered about [x]. Edge-to-edge the screen can fit 16x10 lines of text.
+        /// </summary>
+        /// <param name="font">The font to draw the text with</param>
+        /// <param name="x">The x position of the string</param>
+        /// <param name="y">The y position of the string</param>
+        /// <param name="s">The string to draw</param>
+        public void DrawCenteredText(TiFontBase font, int x, int y, string s)
+        {
+            if (_currentMode != BeginMode.None)
+                return;
+
+            font.RenderStringToBuffer(x - font.GetStringWidth(s) / 2, y, s, ref _tempBuffer);
             MergeTempBuffer();
         }
 
