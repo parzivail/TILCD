@@ -5,8 +5,9 @@ namespace TiLcdTest
     internal abstract class TiFontBase
     {
         /// <summary>
-        /// The actual font itself. Fonts should be 5x8 pixels in size and should be stored vertically.
-        /// Fonts should be stored in the pattern: [width * one byte] * number of characters
+        ///     The actual font itself. Fonts should be 5x8 pixels in size and should be stored vertically.
+        ///     Fonts should be stored in the pattern: [width * one byte] * number of characters.
+        ///     Fonts are ordered based on Code Page 437.
         /// </summary>
         protected static byte[] Font = new byte[0];
 
@@ -15,12 +16,12 @@ namespace TiLcdTest
 
         public int GetStringWidth(string s)
         {
-            return s.Length * (CharWidth + 1);
+            return s.Length*(CharWidth + 1);
         }
 
-        public byte[] GetCharBytes(char c)
+        private byte[] GetCharBytes(char c)
         {
-            if (c < 0 || c >= 255)
+            if ((c < 0) || (c >= 255))
                 c = '?';
 
             var charBytes = new byte[CharWidth];
@@ -29,7 +30,7 @@ namespace TiLcdTest
             return charBytes;
         }
 
-        public void RenderCharToBuffer(int x, int y, char c, ref bool[,] buffer)
+        private void RenderCharToBuffer(int x, int y, char c, ref bool[,] buffer)
         {
             var charBytes = GetCharBytes(c).ToBoolArray();
 

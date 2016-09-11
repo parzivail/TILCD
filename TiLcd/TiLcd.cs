@@ -8,6 +8,7 @@ namespace TiLcdTest
     internal class TiLcd
     {
         private readonly GpioPin _ce;
+        private readonly List<Point> _currentPoints;
         private readonly GpioPin _d0;
         private readonly GpioPin _d1;
         private readonly GpioPin _d2;
@@ -18,12 +19,11 @@ namespace TiLcdTest
         private readonly GpioPin _d7;
         private readonly GpioPin _di;
         private readonly GpioPin _rst;
-        private byte _contrast;
 
         internal readonly bool[,] GraphicsBuffer = new bool[64, 96];
+        private byte _contrast;
 
         private BeginMode _currentMode;
-        private readonly List<Point> _currentPoints;
         private bool[,] _tempBuffer = new bool[64, 96];
 
         public TiLcd(byte ce, byte di, byte wr, byte rst, byte d0, byte d1, byte d2, byte d3, byte d4, byte d5, byte d6,
@@ -38,7 +38,8 @@ namespace TiLcdTest
             _ce.SetDriveMode(GpioPinDriveMode.Output);
             _di = gpio.OpenPin(di);
             _di.SetDriveMode(GpioPinDriveMode.Output);
-            var wr1 = gpio.OpenPin(wr); // Local variable because I don't think I'll ever implement status read, only write.
+            var wr1 = gpio.OpenPin(wr);
+                // Local variable because I don't think I'll ever implement status read, only write.
             wr1.SetDriveMode(GpioPinDriveMode.Output);
             _rst = gpio.OpenPin(rst);
             _rst.SetDriveMode(GpioPinDriveMode.Output);
@@ -77,7 +78,7 @@ namespace TiLcdTest
         ///     Initializes the display. Sets the word length to 8, counter mode to <see cref="CounterMode.XUp" />, display state
         ///     to <see cref="DisplayState.On" />, and contrast to [contrast = 48].
         /// </summary>
-        /// <param name="contrast">The contrast of the display. Optional.</param>
+        /// <param name="contrast">The contrast of the display. Optional, defaults to 48.</param>
         public void Init(byte contrast = 48)
         {
             _contrast = contrast;
@@ -105,7 +106,7 @@ namespace TiLcdTest
         /// <param name="state">The state, 0 or 1.</param>
         public void SetDisplayState(byte state)
         {
-            WriteBinaryValue(0, (byte) (TiCommand.DisplayStateSet | state));
+            WriteBinaryValue(0, (byte) (TiCommand.DisplayStateSet | (state & CommandMask.StateMask)));
         }
 
         /// <summary>
@@ -117,7 +118,7 @@ namespace TiLcdTest
         /// <param name="mode">The mode (of type <see cref="CounterMode" />)</param>
         public void SetCounterMode(byte mode)
         {
-            WriteBinaryValue(0, (byte) (TiCommand.CounterModeSet | mode));
+            WriteBinaryValue(0, (byte) (TiCommand.CounterModeSet | (mode & CommandMask.CounterMask)));
         }
 
         /// <summary>
@@ -279,12 +280,12 @@ namespace TiLcdTest
         /// <summary>
         ///     Sets a pixel in the given buffer to the given value
         /// </summary>
+        /// <param name="buffer">The buffer to set in</param>
         /// <param name="x">The x position of the pixel</param>
         /// <param name="y">The y position of the pixel</param>
         /// <param name="value">The pixel's value</param>
-        /// <param name="buffer">The buffer to set in</param>
         /// <returns>True if the value was sucessfully written</returns>
-        public bool SetPixelInBuffer(int x, int y, bool value, ref bool[,] buffer)
+        public bool SetPixelInBuffer(ref bool[,] buffer, int x, int y, bool value)
         {
             if ((x < 0) || (x >= 96) || (y < 0) || (y >= 64))
                 return false;
@@ -372,7 +373,7 @@ namespace TiLcdTest
 
                     for (var y = minY - 1; y <= maxY; y++)
                         for (var x = minX - 1; x <= maxX; x++)
-                            _tempBuffer[y, x] = new Point(x, y).PointInPolygon(_currentPoints);
+                            _tempBuffer[y, x] = new Point(x, y).InPolygon(_currentPoints);
 
                     break;
             }
@@ -442,7 +443,7 @@ namespace TiLcdTest
 
             for (var x = x0; x <= x1; ++x)
             {
-                if (!(steep ? SetPixelInBuffer(y, x, true, ref buffer) : SetPixelInBuffer(x, y, true, ref buffer)))
+                if (!(steep ? SetPixelInBuffer(ref buffer, y, x, true) : SetPixelInBuffer(ref buffer, x, y, true)))
                     return;
                 err = err - dY;
                 if (err >= 0) continue;
@@ -479,7 +480,7 @@ namespace TiLcdTest
             if (_currentMode != BeginMode.None)
                 return;
 
-            font.RenderStringToBuffer(x - font.GetStringWidth(s) / 2, y, s, ref _tempBuffer);
+            font.RenderStringToBuffer(x - font.GetStringWidth(s)/2, y, s, ref _tempBuffer);
             MergeTempBuffer();
         }
 

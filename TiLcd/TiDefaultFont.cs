@@ -1,13 +1,10 @@
-﻿using System;
-
-namespace TiLcdTest
+﻿namespace TiLcdTest
 {
     internal class TiDefaultFont : TiFontBase
     {
         /// <summary>
-        /// This is the 'classic' fixed-space bitmap font for Adafruit_GFX since 1.0.
-        /// 
-        /// Port of https://github.com/adafruit/Adafruit-GFX-Library/blob/master/glcdfont.c
+        ///     This is the 'classic' fixed-space bitmap font for Adafruit_GFX since 1.0.
+        ///     Port of https://github.com/adafruit/Adafruit-GFX-Library/blob/master/glcdfont.c
         /// </summary>
         public TiDefaultFont()
         {

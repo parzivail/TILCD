@@ -13,7 +13,7 @@ namespace TiLcdTest
         public int X { get; set; }
         public int Y { get; set; }
 
-        public bool PointInPolygon(List<Point> polygon)
+        public bool InPolygon(List<Point> polygon)
         {
             var inside = false;
             for (int i = 0, j = polygon.Count - 1; i < polygon.Count; j = i++)
